@@ -289,3 +289,6 @@ def pregunta_13():
     sum_c1_c5b = tbl0_tbl2.groupby("_c1")["_c5b"].sum()
 
     return sum_c1_c5b
+
+
+# comment
