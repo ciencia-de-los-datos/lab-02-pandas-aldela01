@@ -7,6 +7,7 @@ Este archivo contiene las preguntas que se van a realizar en el laboratorio.
 Utilice los archivos `tbl0.tsv`, `tbl1.tsv` y `tbl2.tsv`, para resolver las preguntas.
 
 """
+
 import pandas as pd
 
 tbl0 = pd.read_csv("tbl0.tsv", sep="\t")
@@ -22,7 +23,10 @@ def pregunta_01():
     40
 
     """
-    return
+    tbl0_df = tbl0.copy()
+    n_rows = tbl0_df.shape[0]
+
+    return n_rows
 
 
 def pregunta_02():
@@ -33,7 +37,10 @@ def pregunta_02():
     4
 
     """
-    return
+    tbl0_df = tbl0.copy()
+    n_cols = tbl0_df.shape[1]
+
+    return n_cols
 
 
 def pregunta_03():
@@ -50,7 +57,10 @@ def pregunta_03():
     Name: _c1, dtype: int64
 
     """
-    return
+    tbl0_df = tbl0.copy()
+    count = tbl0_df["_c1"].value_counts().sort_index()
+
+    return count
 
 
 def pregunta_04():
@@ -65,7 +75,10 @@ def pregunta_04():
     E    4.785714
     Name: _c2, dtype: float64
     """
-    return
+    tbl0_df = tbl0.copy()
+    mean = tbl0_df.groupby("_c1")["_c2"].mean()
+
+    return mean
 
 
 def pregunta_05():
@@ -82,7 +95,10 @@ def pregunta_05():
     E    9
     Name: _c2, dtype: int64
     """
-    return
+    tbl0_df = tbl0.copy()
+    max = tbl0_df.groupby("_c1")["_c2"].max()
+
+    return max
 
 
 def pregunta_06():
@@ -94,7 +110,10 @@ def pregunta_06():
     ['A', 'B', 'C', 'D', 'E', 'F', 'G']
 
     """
-    return
+    tbl1_df = tbl1.copy()
+    unique = tbl1_df["_c4"].sort_values().unique()
+    unique = [x.upper() for x in unique]
+    return unique
 
 
 def pregunta_07():
@@ -110,7 +129,10 @@ def pregunta_07():
     E    67
     Name: _c2, dtype: int64
     """
-    return
+    tbl0_df = tbl0.copy()
+    sum_c2_c1 = tbl0_df.groupby("_c1")["_c2"].sum()
+
+    return sum_c2_c1
 
 
 def pregunta_08():
@@ -128,7 +150,10 @@ def pregunta_08():
     39   39   E    5  1998-01-26    44
 
     """
-    return
+    tbl0_df = tbl0.copy()
+    tbl0_df["suma"] = tbl0_df["_c0"] + tbl0_df["_c2"]
+
+    return tbl0_df
 
 
 def pregunta_09():
@@ -146,7 +171,12 @@ def pregunta_09():
     39   39   E    5  1998-01-26  1998
 
     """
-    return
+
+    # tbl0 = tbl0.pd.to_datetime(tbl0["_c3"])
+
+    tbl0_df = tbl0.copy()
+    tbl0_df["year"] = tbl0_df["_c3"].str.split("-").str[0]
+    return tbl0_df
 
 
 def pregunta_10():
@@ -163,7 +193,21 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    return
+
+    tbl0_df = tbl0.copy()
+
+    # Group c_2 by c_1 and sort the values of c_2
+    tbl0_df = tbl0_df.sort_values(by=["_c1", "_c2"])
+    tbl0_df = (
+        tbl0_df.groupby("_c1")["_c2"]
+        .apply(lambda x: ":".join(x.astype(str)))
+        .reset_index()
+    )
+
+    # Set c_1 as index
+    tbl0_df = tbl0_df.set_index("_c1")
+
+    return tbl0_df
 
 
 def pregunta_11():
@@ -182,7 +226,13 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+
+    tbl1_df = tbl1.copy()
+    # Sort values of _c0 and _c4
+    tbl1_df = tbl1_df.sort_values(by=["_c0", "_c4"])
+    # Group by _c0 and join the values of _c4
+    tbl1_df = tbl1_df.groupby("_c0")["_c4"].apply(lambda x: ",".join(x)).reset_index()
+    return tbl1_df
 
 
 def pregunta_12():
@@ -200,7 +250,17 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
+
+    tbl2_df = tbl2.copy()
+    # Sort values of _c0 by _c5a and _c5b
+    tbl2_df = tbl2_df.sort_values(by=["_c5a", "_c5b"])
+    # Merge columns _c5a and _c5b
+    tbl2_df["_c5"] = tbl2_df["_c5a"] + ":" + tbl2_df["_c5b"].astype(str)
+    # Drop columns _c5a and _c5b
+    tbl2_df = tbl2_df.drop(columns=["_c5a", "_c5b"])
+    # Group by _c0 and join the values of _c5
+    tbl2_df = tbl2_df.groupby("_c0")["_c5"].apply(lambda x: ",".join(x)).reset_index()
+    return tbl2_df
 
 
 def pregunta_13():
@@ -217,4 +277,15 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+
+    tbl0_df = tbl0.copy()
+    tbl2_df = tbl2.copy()
+
+    # Merge tbl0 and tbl2
+    tbl0_tbl2 = pd.merge(tbl0_df, tbl2_df, on="_c0")
+    # Sort values of _c1 and _c5b
+    tbl0_tbl2 = tbl0_tbl2.sort_values(by=["_c1", "_c5b"])
+    # Group by _c1 and sum the values of _c5b
+    sum_c1_c5b = tbl0_tbl2.groupby("_c1")["_c5b"].sum()
+
+    return sum_c1_c5b
